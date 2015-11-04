@@ -67,7 +67,7 @@ void display()
     glPopMatrix();
     
     glPushMatrix();
-    glTranslatef(280, 520, 0);
+    glTranslatef(275, 520, 0);
     glRotatef(30, 0, 0, 1);
     star(0, 0, 25); //small star2
     glPopMatrix();
