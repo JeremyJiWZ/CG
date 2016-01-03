@@ -14,6 +14,7 @@ float fScale     = 1.0f;	// set inital scale value to 1.0f
 bool bPersp = false;
 bool bAnim = false;
 bool bWire = false;
+bool selectMixTex = false;
 
 int wHeight = 0;
 int wWidth = 0;
@@ -21,7 +22,10 @@ int wWidth = 0;
 Bitmap texture1 =Bitmap("/Users/jiwentadashi/Desktop/计算机图形/实验六/Crack.bmp");
 Bitmap texture2 =Bitmap("/Users/jiwentadashi/Desktop/计算机图形/实验六/Monet.bmp");
 Bitmap texture3 =Bitmap("/Users/jiwentadashi/Desktop/计算机图形/实验六/Spot.bmp");
+BYTE* mixImage;//生成的图片
 GLuint texNames[10];
+
+
 
 //定义材质信息
 float dest_mat_diffuse[] = {1,0,0,1};
@@ -51,6 +55,20 @@ const float delta_angle = 1;
 const float delta_pos = 0.1;
 
 void Draw_Leg();
+
+void madeMixImage(){
+    mixImage = new BYTE[12288];
+    for (int i = 0; i < 64; i++)
+    {
+        for (int j = 0; j < 64; j++)
+        {
+            int c = ((((i & 0x8) == 0) ^ ((j & 0x8))) == 0) * 255;
+            mixImage[i*64*3+j*3+0]=c;//r
+            mixImage[i*64*3+j*3+1]=0;//g
+            mixImage[i*64*3+j*3+2]=0;//b
+        }
+    }
+}
 
 void setLight(){
     if (light_choosen==0) {//white
@@ -167,7 +185,8 @@ void Draw_Triangle() // This function draws a triangle with RGB colors
     glPushMatrix();
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);//使用纹理
-    glBindTexture(GL_TEXTURE_2D, texNames[1]);//给茶壶添加纹理
+    if (selectMixTex) glBindTexture(GL_TEXTURE_2D, texNames[3]);//添加生成纹理
+    else glBindTexture(GL_TEXTURE_2D, texNames[1]);//或者给茶壶添加纹理
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);//与光照混合
     glTranslatef(0, 0, 4+1);
     glRotatef(90, 1, 0, 0);
@@ -293,6 +312,7 @@ void key(unsigned char k, int x, int y)
             
         case ' ': {bAnim = !bAnim; break;}
         case 'o': {bWire = !bWire; break;}
+        
             
         case 'a': {
             eye[0] -= 0.2f;
@@ -364,6 +384,9 @@ void key(unsigned char k, int x, int y)
         case '-':
             angle -=delta_angle;
             printf("%f\n",angle);
+            break;
+        case '`':
+            selectMixTex=!selectMixTex;
             break;
     }
     
@@ -455,12 +478,28 @@ void bindTex(){
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
                  texture3.getWidth(), texture3.getHeight(),
                  0, GL_RGB, GL_UNSIGNED_BYTE, texture3.getImage());
+    
+    madeMixImage();
+    glGenTextures(1, &texNames[3]);
+    glBindTexture(GL_TEXTURE_2D, texNames[3]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 64, 64,
+                 0, GL_RGB, GL_UNSIGNED_BYTE, mixImage);
 }
 void init(){
     texture1.ReadImage();
     texture2.ReadImage();
     texture3.ReadImage();
     bindTex();
+    Bitmap test = Bitmap("/Users/jiwentadashi/Desktop/test1.bmp");
+    test.setFH(RealImage, 64, 64);
+    test.setIH(RealImage, 64, 64);
+    test.setImage(mixImage);
+    test.WriteFile();
 }
 
 int main (int argc,  char *argv[])

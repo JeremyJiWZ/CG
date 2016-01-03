@@ -81,6 +81,7 @@ public:
     void Erosion();
     void Opening();
     void Closing();
+    void setImage(BYTE* image){imageData=image;};
     DWRD getWidth(){return ih.biWidth;}
     DWRD getHeight(){return ih.biHeight;}
 };

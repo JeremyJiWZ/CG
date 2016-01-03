@@ -32,6 +32,7 @@ void Bitmap::setIH(ImageType i, int weight, int height)
     ih.biXPelsPerMeter=ih.biYPelsPerMeter=88;//don't know,randomly put
     ih.biSizeImage=widthBytes*height;
     ih.biClrUsed=0;
+//    ih.beClrImportant=0;
 }
 void Bitmap::setBinaryRGBQUAD()
 {
@@ -61,6 +62,7 @@ void Bitmap::ReadImage()
     widthBytes = ((ih.biWidth*ih.biBitCount+31)&~31)/8;
     imageData = new BYTE[ih.biHeight*widthBytes];
     fread(imageData, widthBytes, ih.biHeight, fp);
+//    printf("bit count:%d\n",ih.biBitCount);
     
 }
 void Bitmap::WriteFile()
